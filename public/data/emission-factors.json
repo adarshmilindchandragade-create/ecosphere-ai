@@ -1,0 +1,45 @@
+{
+  "methodology": "Illustrative MVP factors based on India national averages. Verify against current IPCC/BEE/MOEFCC inventories before production use.",
+  "units": "kg CO2e",
+  "version": "2.0",
+  "sources": [
+    "IPCC AR6 WG3 - Emission Factors",
+    "India Central Electricity Authority - CO2 Baseline Database v18",
+    "Bureau of Energy Efficiency - India Standards"
+  ],
+  "factors": {
+    "transport": {
+      "car_per_km": 0.171,
+      "bus_per_km": 0.089,
+      "metro_per_km": 0.041,
+      "bike_per_km": 0,
+      "flight_per_km": 0.255
+    },
+    "energy": {
+      "grid_electricity_per_kwh": 0.708,
+      "ac_per_hour": 1.2,
+      "appliance_per_kwh": 0.708
+    },
+    "food": {
+      "plant_diet_month": 52,
+      "mixed_diet_month": 108,
+      "meat_heavy_diet_month": 172,
+      "local_sourcing_reduction": 0.15
+    },
+    "shopping": {
+      "electronics_per_inr": 0.28,
+      "fashion_per_inr": 0.22,
+      "general_per_inr": 0.14
+    },
+    "waste": {
+      "waste_bag_per_week": 2.1,
+      "recycling_reduction_factor": 0.6
+    }
+  },
+  "equivalents": {
+    "tree_absorption_kg_per_year": 22,
+    "domestic_flight_kg": 115,
+    "smartphone_charge_kg": 0.008,
+    "avg_car_emission_per_km": 0.171
+  }
+}
