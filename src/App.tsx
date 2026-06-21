@@ -4,10 +4,10 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { TerraAIAssistant } from './components/ui/TerraAIAssistant';
-import { LandingPage } from './pages/LandingPage/LandingPage';
-import { LoginPage } from './pages/Auth/LoginPage';
-import { SignUpPage } from './pages/Auth/SignUpPage';
-import { DemoDashboard } from './pages/Demo/DemoDashboard';
+const LandingPage = React.lazy(() => import('./pages/LandingPage/LandingPage').then(module => ({ default: module.LandingPage })));
+const LoginPage = React.lazy(() => import('./pages/Auth/LoginPage').then(module => ({ default: module.LoginPage })));
+const SignUpPage = React.lazy(() => import('./pages/Auth/SignUpPage').then(module => ({ default: module.SignUpPage })));
+const DemoDashboard = React.lazy(() => import('./pages/Demo/DemoDashboard').then(module => ({ default: module.DemoDashboard })));
 
 // Layout for the landing page with Navbar and Footer
 function MainLayout({ children }: { children: React.ReactNode }) {
