@@ -22,21 +22,16 @@
  */
 
 import express from 'express';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { z } from 'zod';
 
 const app = express();
 const port = Number(process.env.PORT || 8787);
 const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
-/* ─── Security Headers ─── */
-app.disable('x-powered-by');
-app.use((_req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  next();
-});
+/* ─── Security Headers (Helmet) ─── */
+app.use(helmet());
 
 /* ─── CORS ─── */
 app.use((_req, res, next) => {
@@ -51,19 +46,12 @@ app.use((_req, res, next) => {
 app.use(express.json({ limit: '20kb' }));
 
 /* ─── Rate Limiting ─── */
-const requests = new Map();
-app.use('/api', (req, res, next) => {
-  const key = req.ip || 'local';
-  const now = Date.now();
-  const record = requests.get(key) || { count: 0, reset: now + 60000 };
-  if (now > record.reset) Object.assign(record, { count: 0, reset: now + 60000 });
-  record.count += 1;
-  requests.set(key, record);
-  if (record.count > 60) {
-    return res.status(429).json({ error: 'Please slow down and try again shortly.' });
-  }
-  next();
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' }
 });
+app.use('/api', limiter);
 
 /* ─── Request Logging ─── */
 app.use('/api', (req, _res, next) => {
@@ -71,7 +59,9 @@ app.use('/api', (req, _res, next) => {
   next();
 });
 
-/* ─── Input Sanitization ─── */
+/* ─── Input Sanitization & Zod Validation ─── */
+const messageSchema = z.string().min(1).max(500);
+
 function sanitize(str) {
   if (typeof str !== 'string') return '';
   return str
@@ -99,10 +89,10 @@ app.get('/api/health', (_req, res) =>
 
 /* AI Coach */
 app.post('/api/coach', (req, res) => {
-  const message = sanitize(req.body?.message);
-  if (!message) return res.status(400).json({ error: 'A message is required.' });
-
-  const lower = message.toLowerCase();
+  try {
+    const validMessage = messageSchema.parse(req.body?.message);
+    const message = sanitize(validMessage);
+    const lower = message.toLowerCase();
   let topic = 'general';
   if (/transport|car|commut|drive|bus|metro/.test(lower)) topic = 'transport';
   else if (/food|diet|meat|veg|plant/.test(lower)) topic = 'food';
@@ -134,6 +124,9 @@ app.post('/api/coach', (req, res) => {
 
   const result = responses[topic] || responses.general;
   res.json({ ...result, source: 'local-recommendation-engine', topic });
+  } catch (e) {
+    res.status(400).json({ error: 'Invalid input message.' });
+  }
 });
 
 /* Server-Side Calculation */
