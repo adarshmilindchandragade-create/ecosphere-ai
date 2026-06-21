@@ -20,14 +20,28 @@ Existing carbon calculators fail. They are static, retrospective, and lack actio
 ---
 
 ## 🏗️ Architecture
+
+```mermaid
+graph TD
+    A[Landing Page] --> B[Dashboard]
+    B --> C[Carbon Twin]
+    B --> D[Scenario Simulator]
+    B --> E[AI Coach]
+    B --> F[Analytics]
+```
+
 - **Frontend**: React 19, TypeScript, Vite
 - **Styling**: Vanilla CSS with comprehensive CSS Variable Design System (Glassmorphism, Dark Premium Theme)
 - **Routing**: React Router DOM v7
 - **Testing**: Vitest + React Testing Library
 - **State**: Lifted state context pattern for extreme performance without heavy global stores like Redux.
 
-## 🔒 Security & Privacy
-EcoSphere AI uses a **local-first** data model. The Scenario Simulator and AI Coach run entirely in the browser using pre-computed regression algorithms. No sensitive travel or dietary data is sent to external servers by default.
+## 🔒 Security
+- **Helmet Security Headers**: Applied via Express middleware to protect against XSS and clickjacking.
+- **Rate Limiting**: Strict `express-rate-limit` prevents brute-force and DDoS attacks.
+- **Input Validation**: Hardened endpoints using `zod` schema parsing.
+- **No Secrets Committed**: Verified clean Git history with strict `.env` exclusion.
+- **Client-Side Data Privacy**: Sensitive lifestyle choices stay in the browser.
 
 ## ♿ Accessibility (a11y)
 - **WCAG AA Compliance**: High-contrast `#020617` dark themes ensuring all text is perfectly legible.
